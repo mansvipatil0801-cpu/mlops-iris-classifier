@@ -91,3 +91,99 @@ def test_preprocess_handles_empty_dataframe(tmp_path):
 
     assert len(result) == 0
     assert list(result.columns[:4]) == NUMERIC_COLS
+
+def test_preprocess_preserves_valid_rows():
+    import pandas as pd
+    from src.pipeline.preprocess import preprocess_data
+
+    df = pd.DataFrame({
+        "sepal_length": [5.1, 6.2],
+        "sepal_width": [3.5, 3.4],
+        "petal_length": [1.4, 4.5],
+        "petal_width": [0.2, 1.5],
+        "species": ["setosa", "versicolor"],
+    })
+
+    result = preprocess_data(df)
+    assert len(result) == 2
+
+
+def test_preprocess_returns_dataframe():
+    import pandas as pd
+    from src.pipeline.preprocess import preprocess_data
+
+    df = pd.DataFrame({
+        "sepal_length": [5.1],
+        "sepal_width": [3.5],
+        "petal_length": [1.4],
+        "petal_width": [0.2],
+        "species": ["setosa"],
+    })
+
+    result = preprocess_data(df)
+    assert isinstance(result, pd.DataFrame)
+
+def test_preprocess_preserves_valid_rows(tmp_path):
+    import pandas as pd
+    from src.pipeline.preprocess import preprocess
+
+    input_file = tmp_path / "input.csv"
+    output_file = tmp_path / "output.csv"
+
+    df = pd.DataFrame({
+        "sepal length (cm)": [5.1, 6.2],
+        "sepal width (cm)": [3.5, 3.4],
+        "petal length (cm)": [1.4, 4.5],
+        "petal width (cm)": [0.2, 1.5],
+        "species": ["setosa", "versicolor"],
+    })
+    df.to_csv(input_file, index=False)
+
+    result = preprocess(str(input_file), str(output_file))
+
+    assert len(result) == 2
+    assert output_file.exists()
+
+
+def test_preprocess_returns_dataframe(tmp_path):
+    import pandas as pd
+    from src.pipeline.preprocess import preprocess
+
+    input_file = tmp_path / "input.csv"
+    output_file = tmp_path / "output.csv"
+
+    df = pd.DataFrame({
+        "sepal length (cm)": [5.1],
+        "sepal width (cm)": [3.5],
+        "petal length (cm)": [1.4],
+        "petal width (cm)": [0.2],
+        "species": ["setosa"],
+    })
+    df.to_csv(input_file, index=False)
+
+    result = preprocess(str(input_file), str(output_file))
+
+    assert isinstance(result, pd.DataFrame)
+    assert len(result) == 1
+
+def test_preprocess_removes_collected_at_column(tmp_path):
+    import pandas as pd
+    from src.pipeline.preprocess import preprocess
+
+    input_file = tmp_path / "input.csv"
+    output_file = tmp_path / "output.csv"
+
+    df = pd.DataFrame({
+        "sepal length (cm)": [5.1],
+        "sepal width (cm)": [3.5],
+        "petal length (cm)": [1.4],
+        "petal width (cm)": [0.2],
+        "species": ["setosa"],
+        "collected_at": ["2026-10-22"],
+    })
+    df.to_csv(input_file, index=False)
+
+    result = preprocess(str(input_file), str(output_file))
+
+    assert "collected_at" not in result.columns
+    assert output_file.exists()
