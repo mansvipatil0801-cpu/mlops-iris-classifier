@@ -52,5 +52,5 @@ stages:
       size: 10448
     - path: src/pipeline/validate.py
       hash: md5
-      md5: 434e4d5499e4c400d31d5bf172f6f983
-      size: 2553
+      md5: ea55ddcdc54cf0bb2f515bb7dfa84365
+      size: 3228
