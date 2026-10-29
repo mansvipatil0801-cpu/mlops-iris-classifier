@@ -1,31 +1,40 @@
+
 # src/pipeline/collect.py
 """
 Stage 1: Data Collection.
 Simulates ingesting raw data from an external source and writing
 it to the raw data zone, with basic collection-time metadata logging.
 """
-import argparse  # takes input from the command line. It allows your Python program to accept arguments/options from the terminal.
 
-# displays useful messages. It is used to show what the program is doing. Better for MLOps because you can classify messages.
+import argparse
 import logging
 from datetime import datetime, timezone
 
 import pandas as pd
 from sklearn.datasets import load_iris
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
 logger = logging.getLogger("collect")
 
 
 def collect_data(output_path: str) -> pd.DataFrame:
     iris = load_iris(as_frame=True)
-    # convert dataset into pandas dataframe and rename target to species
+
+    # Convert the dataset to a DataFrame and rename the target column.
     df = iris.frame.rename(columns={"target": "species"})
-    # converts 0 → setosa, 1 → versicolor, 2 → virginica
+
+    # Map numeric targets to species names.
     df["species"] = df["species"].map(dict(enumerate(iris.target_names)))
-    # adds a timestamp showing when the data was collected.
+
+    # Record when the data was collected.
     df["collected_at"] = datetime.now(timezone.utc).isoformat()
 
-    df.to_csv(output_path, index=False)  # saves the DataFrame as a CSV file. data/raw/iris_raw.csv
+    # Save the collected data as a CSV file.
+    df.to_csv(output_path, index=False)
+
     logger.info("Collected %d rows -> %s", len(df), output_path)
     return df
 
