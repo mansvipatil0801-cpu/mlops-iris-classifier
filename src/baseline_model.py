@@ -16,7 +16,7 @@ FEATURE_COLS = [
 ]
 
 
-def load_dataset(path: str): 
+def load_dataset(path: str):
     df = pd.read_csv(path)
     le = LabelEncoder()
     y = le.fit_transform(df["species"])
